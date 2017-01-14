@@ -99,43 +99,45 @@ class postsPipeline(object):
     def _conditional_insert(self, tx, item):
         # create record if doesn't exist.
         # all this block run on it's own thread
+		#设置数据库编码为utf-8mb4，用来存储带有表情的内容
         sql1 = 'set names utf8mb4'
         tx.execute(sql1)
 		try:
-			args = (item['user_id'],
-					item['user_name'],
-					item['sex'],
-					item['post_num'],
-					item['tb_age'],
-					item['followed_count'],
-					item['forum_title'],
-					item['manager_frum'],
-					item['portrait_path']
-					)
-			sql = "insert into user_detail(user_id,user_name,sex,post_num,tb_age,followed_count,forum_title,manager_frum,portrait) VALUES(%s,'%s','%s',%d,'%s',%d,'%s','%s','%s')" % args
-			tx.execute(sql)
-			log.msg("Item stored in db: %s" % item, level=log.INFO)
+			try:
+				args = (item['user_id'],
+						item['user_name'],
+						item['sex'],
+						item['post_num'],
+						item['tb_age'],
+						item['followed_count'],
+						item['forum_title'],
+						item['manager_frum'],
+						item['portrait_path']
+						)
+				sql = "insert into user_detail(user_id,user_name,sex,post_num,tb_age,followed_count,forum_title,manager_frum,portrait) VALUES(%s,'%s','%s',%d,'%s',%d,'%s','%s','%s')" % args
+				tx.execute(sql)
+				log.msg("Item stored in db: %s" % item, level=log.INFO)
 
-		except：
-		# 避免重复存储
-			# log.msg("threads_id already stored in db: %s" % item, level=log.WARNING)
-			# 更新帖子信息
-			args = (item['user_name'],
-					item['post_num'],
-					item['tb_age'],
-					item['followed_count'],
-					item['forum_title'],
-					item['manager_frum'],
-					item['portrait_path'],
-					item['user_id']
-					)
-			# sql后面
-			sql = "UPDATE user_detail SET user_name='%s', post_num=%d,tb_age='%s',followed_count=%d,forum_title='%s',manager_frum='%s',portrait='%s'  WHERE user_id='%s'" % args
-			# print sql
-			# loger.info(sql)
-			# 执行更新操作
-			tx.execute(sql)
-			log.msg("update item : %s" % item, level=log.WARNING)
+			except：
+			# 避免重复存储
+				# log.msg("threads_id already stored in db: %s" % item, level=log.WARNING)
+				# 更新帖子信息
+				args = (item['user_name'],
+						item['post_num'],
+						item['tb_age'],
+						item['followed_count'],
+						item['forum_title'],
+						item['manager_frum'],
+						item['portrait_path'],
+						item['user_id']
+						)
+				# sql后面
+				sql = "UPDATE user_detail SET user_name='%s', post_num=%d,tb_age='%s',followed_count=%d,forum_title='%s',manager_frum='%s',portrait='%s'  WHERE user_id='%s'" % args
+				# print sql
+				# loger.info(sql)
+				# 执行更新操作
+				tx.execute(sql)
+				log.msg("update item : %s" % item, level=log.WARNING)
 			
         except KeyError:
             DropItem(u'missing thread_id:%s' % item)
